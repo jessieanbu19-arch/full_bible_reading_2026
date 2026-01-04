@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Bible Reading Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-card">
+                <div class="login-header">
+                    <span class="login-icon">🔐</span>
+                    <h2>Admin Access</h2>
+                    <p>Enter your credentials to continue</p>
+                </div>
+                <div class="login-form">
+                    <input type="text" id="adminUsername" placeholder="Username" onkeypress="handleUsernameEnter(event)" autocomplete="username">
+                    <input type="password" id="adminPassword" placeholder="Password" onkeypress="handlePasswordEnter(event)" autocomplete="current-password">
+                    <button class="btn-primary login-btn" onclick="login()">Login</button>
+                    <button class="btn-secondary" onclick="window.location.href='index.html'">Cancel</button>
+                </div>
+                <div id="loginError" class="error-message" style="display: none;">Invalid credentials</div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" style="display: none;">
+            <!-- Header -->
+            <header>
+                <div class="header-content">
+                    <div class="logo">
+                        <button class="back-btn" onclick="logout()">←</button>
+                        <h1>Admin Panel</h1>
+                    </div>
+                    <div class="header-actions">
+                        <button class="icon-btn" onclick="window.location.reload()">
+                            <img src="images/refresh.png" alt="Refresh" class="nav-icon-img">
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Overview -->
+            <div class="admin-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-value" id="totalParticipants">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="totalCompletions">0</div>
+                    <div class="stat-label">Total Completions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-value" id="avgCompletion">0%</div>
+                    <div class="stat-label">Avg Progress</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-value" id="todayCompletions">0</div>
+                    <div class="stat-label">Today</div>
+                </div>
+            </div>
+
+            <!-- User Management -->
+            <div class="section-header">
+                <h2>Manage Participants</h2>
+            </div>
+
+            <div class="card">
+                <div class="add-user-form">
+                    <input type="text" id="newUserName" placeholder="Enter participant name" onkeypress="if(event.key==='Enter') addParticipant()">
+                    <button class="btn-primary" onclick="addParticipant()">Add Participant</button>
+                </div>
+            </div>
+
+            <div id="participantsList" class="admin-participants-list"></div>
+
+            <!-- Download Reports Section -->
+            <div class="section-header">
+                <h2>📥 Download Reports</h2>
+            </div>
+
+            <div class="card download-section">
+                <!-- Weekly Report Download -->
+                <div class="download-item">
+                    <div class="download-info">
+                        <h4>📅 Weekly Report</h4>
+                        <p>Download completion report for a specific week</p>
+                    </div>
+                    <div class="download-controls">
+                        <input type="week" id="downloadWeekSelector">
+                        <button class="btn-primary" onclick="downloadWeeklyReport()">Download</button>
+                    </div>
+                </div>
+
+                <!-- Date Range Report Download -->
+                <div class="download-item">
+                    <div class="download-info">
+                        <h4>📆 Date Range Report</h4>
+                        <p>Download report for custom date range</p>
+                    </div>
+                    <div class="download-controls">
+                        <input type="date" id="downloadFromDate" placeholder="From">
+                        <input type="date" id="downloadToDate" placeholder="To">
+                        <button class="btn-primary" onclick="downloadDateRangeReport()">Download</button>
+                    </div>
+                </div>
+
+                <!-- Monthly Report Download -->
+                <div class="download-item">
+                    <div class="download-info">
+                        <h4>📊 Monthly Report</h4>
+                        <p>Download completion report for a month</p>
+                    </div>
+                    <div class="download-controls">
+                        <input type="month" id="downloadMonthSelector">
+                        <button class="btn-primary" onclick="downloadMonthlyReport()">Download</button>
+                    </div>
+                </div>
+
+                <!-- Individual Report Download -->
+                <div class="download-item">
+                    <div class="download-info">
+                        <h4>👤 Individual Report</h4>
+                        <p>Download report for a specific participant</p>
+                    </div>
+                    <div class="download-controls">
+                        <select id="downloadUserSelector">
+                            <option value="">Select participant...</option>
+                        </select>
+                        <button class="btn-primary" onclick="downloadIndividualReport()">Download</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Report -->
+            <div class="section-header">
+                <h2>Weekly Report</h2>
+            </div>
+
+            <div class="card">
+                <div class="week-filter">
+                    <label>Select Week:</label>
+                    <input type="week" id="weekSelector" onchange="loadWeeklyReport()">
+                </div>
+                <div id="weeklyReportContent"></div>
+            </div>
+
+            <!-- Progress Monitor -->
+            <div class="section-header">
+                <h2>Completion Monitor</h2>
+            </div>
+
+            <div class="card">
+                <div class="filter-controls">
+                    <select id="userFilter" onchange="filterProgress()">
+                        <option value="">All Users</option>
+                    </select>
+                    <input type="date" id="dateFilter" onchange="filterProgress()">
+                </div>
+                <div id="progressMonitorList" class="progress-monitor-list"></div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <nav class="bottom-nav">
+                <a href="index.html" class="nav-item">
+                    <img src="images/today.png" alt="Today" class="nav-icon-img">
+                    <span class="nav-label">Today</span>
+                </a>
+                <a href="progress.html" class="nav-item">
+                    <img src="images/progress.png" alt="Progress" class="nav-icon-img">
+                    <span class="nav-label">Progress</span>
+                </a>
+                <a href="dashboard.html" class="nav-item">
+                    <img src="images/comunity.png" alt="Community" class="nav-icon-img">
+                    <span class="nav-label">Community</span>
+                </a>
+                <a href="admin.html" class="nav-item active">
+                    <img src="images/admin.png" alt="Admin" class="nav-icon-img">
+                    <span class="nav-label">Admin</span>
+                </a>
+            </nav>
+
+            <!-- Footer -->
+            <footer class="site-footer">
+                <p>© Made with ❤️ & Credit to Jesus Christ alone.</p>
+            </footer>
+        </div>
+    </div>
+
+    <script defer src="data-supabase.js"></script>
+    <script defer src="admin.js"></script>
+</body>
+</html>
