@@ -116,7 +116,7 @@ async function updateTodayReading() {
         const date = new Date(reading.date);
         document.getElementById('todayDay').textContent = date.getDate();
         document.getElementById('todayMonth').textContent = getMonthName(date.getMonth());
-        document.getElementById('todayPortion').innerHTML = formatPortionDisplay(reading.portion);
+        document.getElementById('todayPortion').innerHTML = formatPortionDisplay(reading.portion, reading.portionTamil);
         
         // Update day counter (Day 1, Day 2, etc.)
         const dayNumber = getDayNumber(todayString);
@@ -330,7 +330,7 @@ function createMiniCard(data, date, isCompleted, isMissed = false) {
             </div>
         </div>
         <div class="mini-card-content">
-            <h4>${formatPortionDisplay(data.portion)}</h4>
+            <h4>${formatPortionDisplay(data.portion, data.portionTamil)}</h4>
             <p>${data.day || getDayName(date.getDay())}</p>
             <div class="mini-card-footer">
                 ${isCompleted ? 

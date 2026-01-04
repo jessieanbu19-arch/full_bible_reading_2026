@@ -337,7 +337,7 @@ async function showUserDetail(userName) {
             const isCatchup = completion.catchup || completedDate.toISOString().split('T')[0] > completion.date;
             
             item.innerHTML = `
-                ${formatPortionDisplay(completion.portion)} 
+                ${formatPortionDisplay(completion.portion, completion.portionTamil)} 
                 ${isCatchup ? '<span style="color: var(--accent-orange); font-size: 11px;">(+5 catchup)</span>' : '<span style="color: var(--accent-green); font-size: 11px;">(+10 regular)</span>'}
                 <br>
                 <span style="font-size: 12px; color: #9A9A9A;">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>

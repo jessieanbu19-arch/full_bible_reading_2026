@@ -46,12 +46,14 @@ async function loadReadingPlanFromCSV(csvUrl) {
             const date = matches[0].replace(/"/g, '').trim();
             const day = matches[1].replace(/"/g, '').trim();
             const portion = matches[2].replace(/"/g, '').trim();
+            const portionTamil = matches[3] ? matches[3].replace(/"/g, '').trim() : portion;
             
             if (date && portion) {
                 readings.push({
                     date: date,
                     day: day,
-                    portion: portion
+                    portion: portion,
+                    portionTamil: portionTamil
                 });
             }
         }
