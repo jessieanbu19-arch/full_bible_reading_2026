@@ -1,5 +1,35 @@
-// Bible Reading Plan 2026 - Local Storage Version
-// Ready for Firebase integration later
+// Bible Reading Plan 2026 - Firebase + Local Storage Version
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyChLIdbSafx0TgMy9wKr7eekLeDbNsXetk",
+  authDomain: "bible-reading-2026-b7ab5.firebaseapp.com",
+  projectId: "bible-reading-2026-b7ab5",
+  storageBucket: "bible-reading-2026-b7ab5.firebasestorage.app",
+  messagingSenderId: "20056195136",
+  appId: "1:20056195136:web:3c374a0f7f63e43a7edfa5"
+};
+
+// Initialize Firebase (will be done after SDK loads)
+let db = null;
+let firebaseReady = false;
+
+function initFirebase() {
+    if (typeof firebase !== 'undefined' && !firebaseReady) {
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.firestore();
+            firebaseReady = true;
+            console.log('✅ Firebase connected successfully!');
+        } catch (e) {
+            console.log('Firebase init error:', e);
+        }
+    }
+}
+
+// Try to init Firebase when script loads
+if (typeof firebase !== 'undefined') {
+    initFirebase();
+}
 
 let BIBLE_READING_PLAN_2026 = [
     // ===== JANUARY 2026 =====
@@ -377,7 +407,7 @@ let BIBLE_READING_PLAN_2026 = [
 // Create alias for BIBLE_READING_PLAN
 const BIBLE_READING_PLAN = BIBLE_READING_PLAN_2026;
 
-// Storage keys
+// Storage keys (for localStorage fallback)
 const STORAGE_KEYS = {
     PARTICIPANTS: 'bible_participants',
     COMPLETIONS: 'bible_completions',
@@ -391,7 +421,7 @@ const DEFAULT_ADMINS = {
     jebastin: 'admin123'
 };
 
-// Initialize storage if not exists
+// Initialize localStorage fallback
 function initializeStorage() {
     if (!localStorage.getItem(STORAGE_KEYS.PARTICIPANTS)) {
         localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify([]));
@@ -406,29 +436,76 @@ function initializeStorage() {
 
 // Initialize reading plan
 async function initializeReadingPlan() {
+    initFirebase();
     initializeStorage();
     return BIBLE_READING_PLAN;
 }
 
-// Get participants
+// ========== FIREBASE FUNCTIONS ==========
+
+// Get participants from Firebase
 async function getParticipants() {
     initializeStorage();
+    
+    // Try Firebase first
+    if (firebaseReady && db) {
+        try {
+            const snapshot = await db.collection('participants').get();
+            const participants = [];
+            snapshot.forEach(doc => {
+                participants.push(doc.data().name);
+            });
+            // Sync to localStorage
+            localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(participants));
+            return participants;
+        } catch (e) {
+            console.log('Firebase read error, using localStorage:', e);
+        }
+    }
+    
+    // Fallback to localStorage
     return JSON.parse(localStorage.getItem(STORAGE_KEYS.PARTICIPANTS) || '[]');
 }
 
-// Save participant
+// Save participant to Firebase
 async function saveParticipant(name) {
     const participants = await getParticipants();
     if (participants.includes(name)) {
         throw new Error('This participant already exists');
     }
+    
+    // Save to Firebase
+    if (firebaseReady && db) {
+        try {
+            await db.collection('participants').doc(name).set({
+                name: name,
+                createdAt: new Date().toISOString()
+            });
+            console.log('✅ Participant saved to Firebase');
+        } catch (e) {
+            console.log('Firebase write error:', e);
+        }
+    }
+    
+    // Also save to localStorage
     participants.push(name);
     localStorage.setItem(STORAGE_KEYS.PARTICIPANTS, JSON.stringify(participants));
     return { name };
 }
 
-// Remove participant
+// Remove participant from Firebase
 async function removeParticipant(name) {
+    // Remove from Firebase
+    if (firebaseReady && db) {
+        try {
+            await db.collection('participants').doc(name).delete();
+            console.log('✅ Participant removed from Firebase');
+        } catch (e) {
+            console.log('Firebase delete error:', e);
+        }
+    }
+    
+    // Also remove from localStorage
     const participants = await getParticipants();
     const index = participants.indexOf(name);
     if (index > -1) {
@@ -438,19 +515,38 @@ async function removeParticipant(name) {
     return true;
 }
 
-// Get completions
+// Get completions from Firebase
 async function getCompletions() {
     initializeStorage();
+    
+    // Try Firebase first
+    if (firebaseReady && db) {
+        try {
+            const snapshot = await db.collection('completions').get();
+            const completions = [];
+            snapshot.forEach(doc => {
+                completions.push(doc.data());
+            });
+            // Sync to localStorage
+            localStorage.setItem(STORAGE_KEYS.COMPLETIONS, JSON.stringify(completions));
+            return completions;
+        } catch (e) {
+            console.log('Firebase read error, using localStorage:', e);
+        }
+    }
+    
+    // Fallback to localStorage
     return JSON.parse(localStorage.getItem(STORAGE_KEYS.COMPLETIONS) || '[]');
 }
 
-// Save completion
+// Save completion to Firebase
 async function saveCompletion(userName, date, portion, day, isCatchup = false) {
     const completions = await getCompletions();
     const existing = completions.find(c => c.userName === userName && c.date === date);
     if (existing) {
         throw new Error('Already marked complete');
     }
+    
     const entry = {
         userName,
         date,
@@ -459,21 +555,62 @@ async function saveCompletion(userName, date, portion, day, isCatchup = false) {
         catchup: isCatchup,
         day
     };
+    
+    // Save to Firebase
+    if (firebaseReady && db) {
+        try {
+            const docId = `${userName}_${date}`;
+            await db.collection('completions').doc(docId).set(entry);
+            console.log('✅ Completion saved to Firebase');
+        } catch (e) {
+            console.log('Firebase write error:', e);
+        }
+    }
+    
+    // Also save to localStorage
     completions.push(entry);
     localStorage.setItem(STORAGE_KEYS.COMPLETIONS, JSON.stringify(completions));
     return entry;
 }
 
-// Remove completion
+// Remove completion from Firebase
 async function removeCompletion(userName, date) {
+    // Remove from Firebase
+    if (firebaseReady && db) {
+        try {
+            const docId = `${userName}_${date}`;
+            await db.collection('completions').doc(docId).delete();
+            console.log('✅ Completion removed from Firebase');
+        } catch (e) {
+            console.log('Firebase delete error:', e);
+        }
+    }
+    
+    // Also remove from localStorage
     const completions = await getCompletions();
     const filtered = completions.filter(c => !(c.userName === userName && c.date === date));
     localStorage.setItem(STORAGE_KEYS.COMPLETIONS, JSON.stringify(filtered));
     return true;
 }
 
-// Clear ALL completions for fresh start
+// Clear ALL completions
 async function clearAllCompletions() {
+    // Clear from Firebase
+    if (firebaseReady && db) {
+        try {
+            const snapshot = await db.collection('completions').get();
+            const batch = db.batch();
+            snapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+            console.log('✅ All completions cleared from Firebase');
+        } catch (e) {
+            console.log('Firebase clear error:', e);
+        }
+    }
+    
+    // Also clear localStorage
     localStorage.setItem(STORAGE_KEYS.COMPLETIONS, JSON.stringify([]));
     return true;
 }
