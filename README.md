@@ -13,7 +13,7 @@ A clean and modern web application designed to help individuals and groups track
 - **Community View**: See top 5 readers and compare progress
 
 ### Admin Features
-- **Secure Access**: Password-protected admin panel (default: `bible2025`)
+- **Secure Access**: Password-protected admin panel
 - **User Management**: Add or remove participants
 - **Progress Monitoring**: View completion status for all users
 - **Weekly Reports**: Generate week-by-week completion summaries
@@ -69,13 +69,7 @@ BIBLE_READING/
 
 ## 🔐 Admin Access
 
-**Default Password**: `bible2025`
-
-To change the admin password:
-1. Open `data.js`
-2. Find the line: `const ADMIN_PASSWORD = 'bible2025';`
-3. Change the password value
-4. Save the file
+Admin credentials are configured privately. Contact the administrator for access.
 
 ## 📊 Using the Application
 

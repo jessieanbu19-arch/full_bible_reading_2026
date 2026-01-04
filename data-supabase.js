@@ -417,7 +417,7 @@ const STORAGE_KEYS = {
 
 // Default admin credentials
 const DEFAULT_ADMINS = {
-    admin: 'bible2026',
+    admin: 'bible2025',
     jebastin: 'admin123'
 };
 
@@ -700,7 +700,7 @@ async function addAdmin(username, password) {
     return { success: true };
 }
 
-const ADMIN_PASSWORD = 'bible2026';
+const ADMIN_PASSWORD = 'bible2025';
 
 // Expose globals for other scripts
 window.getParticipants = getParticipants;
