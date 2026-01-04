@@ -34,7 +34,7 @@ if (typeof window.verifyAdmin === 'undefined') {
     console.warn('⚠️ verifyAdmin not found. Using fallback auth.');
     window.verifyAdmin = async (username, password) => {
         const fallback = {
-            admin: 'bible2026',
+            admin: 'bible2025',
             jebastin: 'admin123'
         };
         if (fallback[username] && fallback[username] === password) {
