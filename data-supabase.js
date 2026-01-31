@@ -60,7 +60,7 @@ let BIBLE_READING_PLAN_2026 = [
 { date: '2026-01-28', day: 'Wednesday', portion: 'யாத்திராகமம் / Exodus 6–7 & மத்தேயு / Matthew 20' },
 { date: '2026-01-29', day: 'Thursday', portion: 'யாத்திராகமம் / Exodus 8–9 & மத்தேயு / Matthew 21' },
 { date: '2026-01-30', day: 'Friday', portion: 'யாத்திராகமம் / Exodus 10–11 & மத்தேயு / Matthew 22' },
-
+{ date: '2026-01-31', day: 'Saturday', portion: 'யாத்திராகமம் / Exodus 12–13' },
 // ===== FEBRUARY 2026 =====
 { date: '2026-02-01', day: 'Sunday', portion: 'யாத்திராகமம் / Exodus 14–15' },
 { date: '2026-02-02', day: 'Monday', portion: 'யாத்திராகமம் / Exodus 16–17 & மத்தேயு / Matthew 23' },
